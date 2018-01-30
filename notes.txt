@@ -1,0 +1,5 @@
+Linear region is at duty cycles 0.3, 0.4 and 0.5.
+0.2 and 0.6 fall outside linear region. 
+But given that this test is not very accurate, assume they are in.
+
+Delay is maybe around 10 seconds. It's hard to tell. 
