@@ -17,7 +17,10 @@ def parse_row(row):
         var2 = np.nan
     else:
         var2 = float(row[1])
-    return var1, var2
+    if len(row) > 2 and row[2]:
+        return var1, var2, float(row[2])
+    else:
+        return var1, var2
 
 
 def check_header_row(row, str1, str2):
@@ -42,7 +45,7 @@ def process_csv(filepath):
             time.append(res[0])
             temperature.append(res[1])
             if len(res) > 2:
-                duty_cycle.append(res[2])
+                duty_cycle.append(float(res[2]))
     test_results.pulse_width = pulse_width
     test_results.duty_cycle = np.array(duty_cycle) if type(duty_cycle) is list else duty_cycle
     test_results.time = np.array(time)
@@ -50,16 +53,22 @@ def process_csv(filepath):
     return test_results
 
 
-def retrieve_data(path):
+def retrieve_data_single_inputs(path):
+    """Return a list with the test results of the runs with each a single duty cycle value."""
     res = {}
-    test_random = None
     for filename in os.listdir(path):
-        if not filename.endswith('.csv'):
+        if not filename.endswith('.csv') or 'random' in filename:
             continue
         test_results = process_csv(os.path.join(path, filename))
-        if type(test_results.duty_cycle) is float:
-            res[test_results.duty_cycle] = test_results
-        else:
-            test_random = test_results
-    return res, test_random
+        res[test_results.duty_cycle] = test_results
+    return res
+
+
+def retrieve_data_random_input(path):
+    """Return a single test result which had a randomly varying duty cycle."""
+    for filename in os.listdir(path):
+        if not filename.endswith('.csv') or not 'random' in filename:
+            continue
+        return process_csv(os.path.join(path, filename))
+
 

@@ -14,7 +14,7 @@ def reset_origin(temperature):
 
 
 def plot_signals():
-    tests, test_random = open_data.retrieve_data(os.path.join('..', 'data'))
+    tests = open_data.retrieve_data_single_inputs(os.path.join('..', 'data'))
     fig, ax = plt.subplots()
     for key in sorted(tests.keys()):
         res = tests[key]
@@ -27,7 +27,7 @@ def plot_signals():
 
 
 def plot_linearity():
-    tests, test_random = open_data.retrieve_data(os.path.join('..', 'data'))
+    tests = open_data.retrieve_data_single_inputs(os.path.join('..', 'data'))
     fig, ax = plt.subplots()
     for key in sorted(tests.keys()):
         res = tests[key]
