@@ -13,7 +13,7 @@ def reset_origin(temperature):
     temperature[:] = temperature - (current_origin - TEMPERATURE_ORIGIN)
 
 
-def main():
+def plot_signals():
     tests, test_random = open_data.retrieve_data(os.path.join('..', 'data'))
     fig, ax = plt.subplots()
     for key in sorted(tests.keys()):
@@ -31,13 +31,14 @@ def plot_linearity():
     fig, ax = plt.subplots()
     for key in sorted(tests.keys()):
         res = tests[key]
-        reset_origin(res.temperature)
         max_output = np.max(res.temperature)
-        ax.plot(res.duty_cycle, max_output / res.duty_cycle, 'x')
-    ax.set_xlabel('Duty cycle')
-    ax.set_ylabel('Temperature / duty cycle')
+        ax.plot(res.duty_cycle, max_output, 'x', label=key,
+                markersize=12, markeredgewidth=2)
+    ax.legend()
+    ax.set_xlabel('duty cycle')
+    ax.set_ylabel('highest temperature')
     ax.set_title('Steady-state gain over input')
-    # save(fig, filename='linearity.png')
+    save(fig, filename='linearity.png')
 
 
 def save(fig, filename=None, path=None):
@@ -53,6 +54,6 @@ def save(fig, filename=None, path=None):
 
 
 if __name__ == '__main__':
-    main()
-    # plot_linearity()
+    # plot_signals()
+    plot_linearity()
     plt.show()
