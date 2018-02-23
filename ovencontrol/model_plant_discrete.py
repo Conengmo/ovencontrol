@@ -3,7 +3,8 @@ import control
 import numpy as np
 import scipy.linalg
 
-from ovencontrol import plot_data
+from ovencontrol import plot_sys_id_data as plot_data
+
 
 m = 1500   # Mass. Gives it a bit delay in the beginning.
 k = 450    # Static gain. Tune so end values are similar to experimental data.

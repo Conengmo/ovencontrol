@@ -2,7 +2,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ovencontrol import open_data
+from ovencontrol import open_sys_id_data as open_data
 
 
 TEMPERATURE_ORIGIN = 0
@@ -14,7 +14,7 @@ def reset_origin(temperature):
 
 
 def plot_signals(ax=None):
-    tests = open_data.retrieve_data_single_inputs(os.path.join('..', 'data'))
+    tests = open_data.retrieve_data_single_inputs(os.path.join('..', 'data', 'system_identification'))
     if ax is None:
         fig, ax = plt.subplots()
     for key in sorted(tests.keys()):
