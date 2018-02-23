@@ -13,9 +13,10 @@ def reset_origin(temperature):
     temperature[:] = temperature - (current_origin - TEMPERATURE_ORIGIN)
 
 
-def plot_signals():
+def plot_signals(ax=None):
     tests = open_data.retrieve_data_single_inputs(os.path.join('..', 'data'))
-    fig, ax = plt.subplots()
+    if ax is None:
+        fig, ax = plt.subplots()
     for key in sorted(tests.keys()):
         res = tests[key]
         reset_origin(res.temperature)
