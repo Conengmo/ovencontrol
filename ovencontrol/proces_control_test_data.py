@@ -20,6 +20,8 @@ class TestResults:
             reader = csv.reader(f)
             next(reader)  # skip the first PuTTY row
             for i, row in enumerate(reader):
+                if len(row) < 5:
+                    continue
                 self.phase.append(int(row[0]))
                 if i > 0 and self.phase[-1] != self.phase[-2]:
                     time_at_phase_start = self.time[-1] + 1  # add one second for time between phases
@@ -35,7 +37,7 @@ class TestResults:
 
 
 def main():
-    filename = 'run1.csv'
+    filename = 'run6.csv'
     res = TestResults(filename)
     fig, axs = plt.subplots(3, 1, sharex=True, tight_layout=True)
     axs[0].plot(res.time, res.phase, label='phase')

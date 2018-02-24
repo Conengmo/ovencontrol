@@ -42,62 +42,64 @@ class PID:
         return u
 
 
-m = 1500   # Mass. Gives it a bit delay in the beginning.
-k = 450    # Static gain. Tune so end values are similar to experimental data.
-c = 240    # Time constant. Higher is slower. Damping.
+def main():
+    m = 1500   # Mass. Gives it a bit delay in the beginning.
+    k = 450    # Static gain. Tune so end values are similar to experimental data.
+    c = 240    # Time constant. Higher is slower. Damping.
 
-# Transfer function. Static gain is numerator. Denominator is c * s + 1. dt = 1.
-sys = control.tf([k], [m, c, 1])
-sys = control.ss(sys)
-res = scipy.linalg.expm(np.array([[sys.A[0, 0], sys.A[0, 1], sys.B[0]],
-                                 [sys.A[1, 0], sys.A[1, 1], sys.B[1]],
-                                 [0, 0, 0]]))
-A = [[res[0, 0], res[0, 1]],
-     [res[1, 0], res[1, 1]]]
-B = [[res[0, 2]], [res[1, 2]]]
-sys_d = control.ss(A, B, sys.C, sys.D, True)
+    # Transfer function. Static gain is numerator. Denominator is c * s + 1. dt = 1.
+    sys = control.tf([k], [m, c, 1])
+    sys = control.ss(sys)
+    res = scipy.linalg.expm(np.array([[sys.A[0, 0], sys.A[0, 1], sys.B[0]],
+                                     [sys.A[1, 0], sys.A[1, 1], sys.B[1]],
+                                     [0, 0, 0]]))
+    A = [[res[0, 0], res[0, 1]],
+         [res[1, 0], res[1, 1]]]
+    B = [[res[0, 2]], [res[1, 2]]]
+    sys_d = control.ss(A, B, sys.C, sys.D, True)
 
-K = 0.2
-Ki = 0
-Kd = 10
+    Kp = 0.1
+    Ki = 0
+    Kd = 2
 
-pid = PID(K, K*Ki, K*Kd, u_max=1, u_min=0)
+    pid = PID(Kp, Ki, Kd, u_max=1, u_min=0)
 
-# Plot the step responses
-timestep_control = 5
-ts = 1
-r = np.concatenate((np.arange(50, 150, 50 / (120 // ts)),
-                    np.arange(150, 180, 30 / (80 // ts)),
-                    np.arange(180, 240, 60 / (60 // ts)),
-                    np.arange(240, 0, -240 / (60 // ts)),
-                    ))
-n = len(r)
+    timestep_control = 2
+    ts = 1
+    r = np.concatenate((np.arange(50, 150, 50 / (120 // ts)),
+                        np.arange(150, 180, 30 / (80 // ts)),
+                        np.arange(180, 240, 60 / (60 // ts)),
+                        np.arange(240, 0, -240 / (60 // ts)),
+                        ))
+    n = len(r)
 
-T = np.arange(0, n, ts)
-# r = np.full(n, fill_value=150)  # input vector. Step response so single value.
-y = np.zeros(n)
-u = np.zeros(n)
-x = np.matrix([[0], [0]])
-y_prev = 0
-time_since_control_update = 9000
+    T = np.arange(0, n, ts)
+    # r = np.full(n, fill_value=150)  # input vector. Step response so single value.
+    y = np.zeros(n)
+    u = np.zeros(n)
+    x = np.matrix([[0], [0]])
+    y_prev = 0
+    time_since_control_update = 9000
 
-for i, t in enumerate(T):
-    time_since_control_update += t
-    if time_since_control_update >= timestep_control:
-        pid.setpoint = r[i]
-        u[i] = pid.get_control_input(y_prev)
-        time_since_control_update = 0
-    else:
-        u[i] = u[i - 1]
-    x = np.add(np.matmul(sys_d.A, x), sys_d.B * u[i])
-    y[i] = np.add(np.matmul(sys_d.C, x), sys_d.D * u[i])
-    y_prev = y[i]
+    for i, t in enumerate(T):
+        time_since_control_update += t
+        if time_since_control_update >= timestep_control:
+            pid.setpoint = r[i]
+            u[i] = pid.get_control_input(y_prev)
+            time_since_control_update = 0
+        else:
+            u[i] = u[i - 1]
+        x = np.add(np.matmul(sys_d.A, x), sys_d.B * u[i])
+        y[i] = np.add(np.matmul(sys_d.C, x), sys_d.D * u[i])
+        y_prev = y[i]
 
-fig, axs = plt.subplots(2, 1, sharex=True, tight_layout=True)
-axs[0].plot(T, y, label='y')
-axs[0].plot(T, r, label='r')
-axs[0].legend()
-axs[1].plot(T, u)
+    fig, axs = plt.subplots(2, 1, sharex=True, tight_layout=True)
+    axs[0].plot(T, y, label='y')
+    axs[0].plot(T, r, label='r')
+    axs[0].legend()
+    axs[1].plot(T, u)
 
 
-plt.show()
+if __name__ == '__main__':
+    main()
+    plt.show()
