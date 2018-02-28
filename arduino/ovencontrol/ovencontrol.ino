@@ -1,16 +1,16 @@
 /*
   PCB Oven controller
 
-  Phase 0    0 --> 150
-  Phase 1  150 --> 180
-  Phase 2  180 --> 220
-  phase 3  220 --> 245
-  Phase 4  250 (25 sec)
-  phase 5  250 --> 217
-  Phase 6  217 -->  25
+  Phase 0    0 --> 150  Warm up
+  Phase 1  150 --> 180  Soak
+  phase 2  220 --> 245  Ramp up
+  Phase 3  250 (25 sec) Peak
+  phase 4  250 --> 217  Cool
+  Phase 5  217 -->  25  Finish
 
+  This script uses AutoPID library by rdownin4 under MIT license.
 */
-#include <AutoPID.h>
+#include "AutoPID.h"
 #include <LiquidCrystal.h>
 
 // initialize the library by associating any needed LCD interface pin
@@ -26,7 +26,7 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 //pid settings and gains
 #define Kp 0.1
 #define Ki 0
-#define Kd 2
+#define Kd 10
 
 double temperature;
 double setPoint;
@@ -69,45 +69,37 @@ double getSetPoint() {
     if (secondsInPhase < 90) {
       return 150 + 30 * secondsInPhase / 90;
     } else {
-      startNewPhase(3);
+      startNewPhase(2);
     }
   }
-//  if (currentPhase == 2) {
-//    // go to lower peak area (which is at 217 deg)
-//    if (temperature < 215) {
-//      return 217;
-//    } else {
-//      startNewPhase(3);
-//    }
-//  }
-  if (currentPhase == 3) {
+  if (currentPhase == 2) {
     // go to peak area (at max 3 deg /s)
     if (temperature < 243) {
       return min(245, 180 + 2 * secondsInPhase);
     } else {
-      startNewPhase(4);
+      startNewPhase(3);
       // turn off secondary heater
       digitalWrite(PIN_SECOND, false);
     }
   }
-  if (currentPhase == 4) {
+  if (currentPhase == 3) {
     // stay in peak area
     if (secondsInPhase < 25) {
       return 249;
+    } else {
+      startNewPhase(4);
+    }
+  }
+  if (currentPhase == 4) {
+    // decend to beneath peak (at max -6 deg /s, best is -2 deg /s)
+    if (temperature > 150) {
+      return max(25, 250 - 2 * secondsInPhase);
     } else {
       startNewPhase(5);
     }
   }
   if (currentPhase == 5) {
-    // decend to beneath peak (at max -6 deg /s)
-    if (temperature > 150) {
-      return max(25, 250 - 5 * secondsInPhase);
-    } else {
-      startNewPhase(6);
-    }
-  }
-  if (currentPhase == 6) {
-    // cool down
+    // Finish by going to room temperature
     return 25;
   }
 }
@@ -140,12 +132,21 @@ void setLcd() {
     timeLcdUpdate = timeCurrent;
     lcd.clear();
     lcd.setCursor(0, 0);
-    if (currentPhase >= 5) {
-      lcd.print("OPEN THE DOOR");
-    } else {
-      lcd.print("Phase ");
-      lcd.print(currentPhase);
-      lcd.setCursor(10, 0);
+    if (currentPhase == 0) {
+      lcd.print("0 Warm up");
+    } else if (currentPhase == 1) {
+      lcd.print("1 Soak");
+    } else if (currentPhase == 2) {
+      lcd.print("2 Ramp up");
+    } else if (currentPhase == 3) {
+      lcd.print("3 Peak");
+    } else if (currentPhase == 4) {
+      lcd.print("4 OPEN THE DOOR");
+    } else if (currentPhase == 5) {
+      lcd.print("5 OPEN THE DOOR");
+    } 
+    if (currentPhase < 4) {
+      lcd.setCursor(11, 0);
       lcd.print((int) secondsInPhase);
     }
     lcd.setCursor(0, 1);

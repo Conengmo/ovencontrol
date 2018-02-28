@@ -1,0 +1,3 @@
+run7 had Kp=0.1 and Kd=2.
+run8 had Kp=0.1 and Kd=4. Add a PCB in the oven.
+run9 had Kp=0.1 and Kd=20. I'm setting Kd=10 after this.

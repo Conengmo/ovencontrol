@@ -1,4 +1,9 @@
 The system does not behave linearly. The highest attainable temperature
 (steady state) does not scale equally with the input.
 
-Delay is maybe around 10 seconds. It's hard to tell. 
+Delay is maybe around 10 seconds. It's hard to tell.
+
+Aluminium plate should be 1/32 inch, which is 0.8 mm.
+
+Arduino selection: Uno should be fine, since it is also an Atmega328p.
+As programmer select ArduinoISP, not the default AVR ISP.

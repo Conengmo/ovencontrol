@@ -37,16 +37,18 @@ class TestResults:
 
 
 def main():
-    filename = 'run6.csv'
+    filename = 'run9.csv'
     res = TestResults(filename)
     fig, axs = plt.subplots(3, 1, sharex=True, tight_layout=True)
     axs[0].plot(res.time, res.phase, label='phase')
     axs[0].legend()
     axs[1].plot(res.time, res.setpoint, label='setpoint')
     axs[1].plot(res.time, res.temperature, label='temperature')
+    axs[1].plot([res.time[0], res.time[-1]], [217, 217], '--', color='grey')
     axs[1].legend()
     axs[2].plot(res.time, res.control_input, label='input')
     axs[2].legend()
+    print('Time above 217 deg C: {:.0f} s'.format(np.sum(res.temperature > 217)))
 
 
 if __name__ == '__main__':

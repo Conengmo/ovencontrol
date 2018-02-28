@@ -60,7 +60,7 @@ def main():
 
     Kp = 0.1
     Ki = 0
-    Kd = 2
+    Kd = 4
 
     pid = PID(Kp, Ki, Kd, u_max=1, u_min=0)
 
