@@ -41,7 +41,7 @@ int secondsInPhase;
 int currentPhase;
 
 
-//input/output variables passed by reference, so they are updated automatically
+// input/output variables passed by reference, so they are updated automatically
 // AutoPIDRelay(double *input, double *setpoint, bool *relayState,
 //              double pulseWidth, double Kp, double Ki, double Kd)
 AutoPIDRelay myPID(&temperature, &setPoint, &relayState, pulseWidth, Kp, Ki, Kd);
@@ -91,7 +91,7 @@ double getSetPoint() {
     }
   }
   if (currentPhase == 4) {
-    // decend to beneath peak (at max -6 deg /s, best is -2 deg /s)
+    // descend to beneath peak (at max -6 deg /s, best is -2 deg /s)
     if (temperature > 150) {
       return max(25, 250 - 2 * secondsInPhase);
     } else {
